@@ -118,7 +118,6 @@ class GS2Seeder {
             'marks': row['marks'],
             'wordLimit': row['wordLimit'],
             'order': row['order'],
-            'sourceNote': '',
             'isActive': true,
           },
           SetOptions(merge: true),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pp_app/auth/view/auth_gate_screen.dart';
 import 'package:pp_app/data/models/user_model.dart';
 import 'package:pp_app/data/repos/auth_repo.dart';
 import 'package:pp_app/routes/app_routes.dart';
@@ -29,47 +30,87 @@ class AuthController extends GetxController {
   // GOOGLE SIGN IN
   // =========================================================
 
+  // Future<void> signInWithGoogle() async {
+  //   try {
+  //     isLoading.value = true;
+
+  //     final credential =
+  //         await _googleService.signIn();
+
+  //     if (credential == null ||
+  //         credential.user == null) {
+  //       return;
+  //     }
+
+  //     final user = credential.user!;
+
+  //     final exists =
+  //         await _repository.userExists(user.uid);
+
+  //     if (exists) {
+  //       Get.offAllNamed(AppRoutes.dashboard);
+  //     } else {
+  //       nameController.text =
+  //           user.displayName ?? '';
+
+  //       Get.offAllNamed(
+  //         AppRoutes.register,
+  //       );
+  //     }
+  //   } on FirebaseAuthException catch (e) {
+  //     Get.snackbar(
+  //       'Sign In Failed',
+  //       e.message ?? 'Unable to sign in.',
+  //     );
+  //   } catch (e) {
+  //     Get.snackbar(
+  //       'Something went wrong',
+  //       'Please try again.',
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+
   Future<void> signInWithGoogle() async {
-    try {
-      isLoading.value = true;
+  try {
+    isLoading.value = true;
 
-      final credential =
-          await _googleService.signIn();
+    final credential = await _googleService.signIn();
 
-      if (credential == null ||
-          credential.user == null) {
-        return;
-      }
-
-      final user = credential.user!;
-
-      final exists =
-          await _repository.userExists(user.uid);
-
-      if (exists) {
-        Get.offAllNamed(AppRoutes.dashboard);
-      } else {
-        nameController.text =
-            user.displayName ?? '';
-
-        Get.offAllNamed(
-          AppRoutes.register,
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      Get.snackbar(
-        'Sign In Failed',
-        e.message ?? 'Unable to sign in.',
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Something went wrong',
-        'Please try again.',
-      );
-    } finally {
-      isLoading.value = false;
+    if (credential == null || credential.user == null) {
+      return;
     }
+
+    final user = credential.user!;
+debugPrint('========== GOOGLE LOGIN ==========');
+debugPrint('Email: ${user.email}');
+debugPrint('UID: ${user.uid}');
+debugPrint('==================================');
+
+    // AuthGateScreen listens to authStateChanges().
+    // It checks the Firestore role and routes automatically.
+
+    nameController.text = user.displayName ?? '';
+    Get.offAll(() => const AuthGateScreen());
+
+  } on FirebaseAuthException catch (e) {
+    Get.snackbar(
+      'Sign In Failed',
+      e.message ?? 'Unable to sign in.',
+    );
+  } catch (e) {
+    debugPrint('Google sign-in error: $e');
+
+    Get.snackbar(
+      'Something went wrong',
+      'Please try again.',
+    );
+  } finally {
+    isLoading.value = false;
   }
+}
 
   // =========================================================
   // CREATE USER
@@ -102,11 +143,14 @@ class AuthController extends GetxController {
           uid: user.uid,
           name: name,
           email: user.email ?? '',
+            role: 'student',
           createdAt: Timestamp.now(),
         ),
       );
 
-      Get.offAllNamed(AppRoutes.dashboard);
+      // Get.offAllNamed(AppRoutes.dashboard);
+
+Get.offAll(() => const AuthGateScreen());
     } catch (e) {
       Get.snackbar(
         'Registration Failed',
@@ -126,7 +170,9 @@ class AuthController extends GetxController {
 
     nameController.clear();
 
-    Get.offAllNamed(AppRoutes.login);
+    // Get.offAllNamed(AppRoutes.login);
+      Get.offAll(() => const AuthGateScreen());
+
   }
 
   @override

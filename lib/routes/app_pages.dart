@@ -1,8 +1,12 @@
 import 'package:get/get.dart';
+import 'package:pp_app/attemptHistory/controller/attempt_history_controller.dart';
+import 'package:pp_app/attemptHistory/view/attempt_history_view.dart';
+import 'package:pp_app/attemptHistory/view/attempt_review_view.dart';
 import 'package:pp_app/auth/view/login_screen.dart';
 import 'package:pp_app/auth/view/register_screen.dart';
 import 'package:pp_app/home/binding/home_binding.dart';
 import 'package:pp_app/home/view/home_screen.dart';
+import 'package:pp_app/home/view/profile_screen.dart';
 import 'package:pp_app/mainDasboard/view/main_dashboard.dart';
 import 'package:pp_app/mainsHome/binding/main_home_binding.dart';
 import 'package:pp_app/mainsHome/view/main_home_screen.dart';
@@ -99,6 +103,27 @@ GetPage(
   name: AppRoutes.mainQuestions,
   page: () => const MainQuestionsScreen(),
   binding: MainQuestionsBinding(),
+),
+
+
+GetPage(
+  name: AppRoutes.attemptHistory,
+  page: () => const AttemptHistoryScreen(),
+  binding: BindingsBuilder(() {
+    Get.lazyPut<AttemptHistoryController>(
+      () => AttemptHistoryController(),
+    );
+  }),
+
+),
+
+GetPage(
+  name: AppRoutes.attemptReview,
+  page: () => const AttemptReviewScreen(),
+),
+GetPage(
+  name: AppRoutes.profile,
+  page: () => const ProfileScreen(),
 ),
   ];
 }

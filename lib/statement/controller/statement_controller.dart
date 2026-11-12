@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pp_app/core/theme/app_colors.dart';
+import 'package:pp_app/home/controller/home_controller.dart';
+import 'package:pp_app/services/prelims_streak_service.dart';
 import 'package:pp_app/statement/view/answer_review_screen.dart';
 
 
@@ -975,7 +977,8 @@ class StatementController extends GetxController {
 
   late final String topicId;
   late final String topicName;
-
+final RxBool isSubmitting = false.obs;
+bool isQuizCompleted = false;
   // ============================================================
   // QUESTIONS
   // ============================================================
@@ -1185,94 +1188,226 @@ final RxInt reviewFilter = 0.obs;
   // SUBMIT ANSWER
   // ============================================================
 
-  Future<void> submitAnswer() async {
-    final selectedIndex =
-        selectedStatementIndex.value;
+//   Future<void> submitAnswer() async {
+//     final selectedIndex =
+//         selectedStatementIndex.value;
 
-    // Nothing selected
-    if (selectedIndex == -1) {
-      Get.snackbar(
-        'Select an Answer',
-        'Please select an answer before submitting.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+//     // Nothing selected
+//     if (selectedIndex == -1) {
+//       Get.snackbar(
+//         'Select an Answer',
+//         'Please select an answer before submitting.',
+//         snackPosition: SnackPosition.BOTTOM,
+//       );
 
-      return;
-    }
+//       return;
+//     }
 
-    // Safety check
-    if (selectedIndex < 0 ||
-        selectedIndex >= displayedStatements.length) {
-      return;
-    }
+//     // Safety check
+//     if (selectedIndex < 0 ||
+//         selectedIndex >= displayedStatements.length) {
+//       return;
+//     }
 
-    final selectedStatement =
-        displayedStatements[selectedIndex];
+//     final selectedStatement =
+//         displayedStatements[selectedIndex];
 
-    final bool isCorrect =
-        selectedStatement['isCorrect'] == true;
+//     final bool isCorrect =
+//         selectedStatement['isCorrect'] == true;
 
-    // ------------------------------------------------------------
-    // FIND CORRECT ANSWER
-    // ------------------------------------------------------------
+//     // ------------------------------------------------------------
+//     // FIND CORRECT ANSWER
+//     // ------------------------------------------------------------
 
-    final correctStatement =
-        displayedStatements.firstWhere(
-      (statement) =>
-          statement['isCorrect'] == true,
-      orElse: () => <String, dynamic>{},
-    );
+//     final correctStatement =
+//         displayedStatements.firstWhere(
+//       (statement) =>
+//           statement['isCorrect'] == true,
+//       orElse: () => <String, dynamic>{},
+//     );
 
-    // ------------------------------------------------------------
-    // SAVE ANSWER FOR REVIEW
-    // ------------------------------------------------------------
+//     // ------------------------------------------------------------
+//     // SAVE ANSWER FOR REVIEW
+//     // ------------------------------------------------------------
 
-    answerResults.add({
-      'questionNumber':
-          currentQuestionIndex.value + 1,
+//     answerResults.add({
+//       'questionNumber':
+//           currentQuestionIndex.value + 1,
 
-      'selectedAnswer':
-          selectedStatement['text']?.toString() ?? '',
+//       'selectedAnswer':
+//           selectedStatement['text']?.toString() ?? '',
 
-      'correctAnswer':
-          correctStatement['text']?.toString() ?? '',
+//       'correctAnswer':
+//           correctStatement['text']?.toString() ?? '',
 
-      'isCorrect':
-          isCorrect,
-    });
+//       'isCorrect':
+//           isCorrect,
+//     });
 
-    // ------------------------------------------------------------
-    // UPDATE SCORE
-    // ------------------------------------------------------------
+//     // ------------------------------------------------------------
+//     // UPDATE SCORE
+//     // ------------------------------------------------------------
 
-    if (isCorrect) {
-      score.value++;
-    }
+//     if (isCorrect) {
+//       score.value++;
+//     }
 
-    // ------------------------------------------------------------
-    // NEXT QUESTION
-    // ------------------------------------------------------------
+//     // ------------------------------------------------------------
+//     // NEXT QUESTION
+//     // ------------------------------------------------------------
 
-    if (currentQuestionIndex.value <
-        questions.length - 1) {
-      currentQuestionIndex.value++;
+//     if (currentQuestionIndex.value <
+//         questions.length - 1) {
+//       currentQuestionIndex.value++;
 
-      selectedStatementIndex.value = -1;
+//       selectedStatementIndex.value = -1;
 
-      // This is your existing method.
-      prepareCurrentStatements();
+//       // This is your existing method.
+//       prepareCurrentStatements();
 
-      return;
-    }
+//       return;
+//     }
 
-    // ------------------------------------------------------------
-    // QUIZ COMPLETED
-    // ------------------------------------------------------------
+//     // ------------------------------------------------------------
+//     // QUIZ COMPLETED
+//     // ------------------------------------------------------------
 
-    await saveAttempt();
+//     await saveAttempt();
 
-    showFinalScore();
+
+// try {
+//   final result = await StreakService.recordPrelimsActivity();
+
+//   final alreadyCounted = result['alreadyCounted'] == true;
+
+//   if (!alreadyCounted && Get.isRegistered<HomeController>()) {
+//     Get.find<HomeController>().loadStreak();
+//   }
+// } catch (e) {
+//   debugPrint('Streak update failed: $e');
+// }    showFinalScore();
+//   }
+
+
+
+Future<void> submitAnswer() async {
+
+  // Prevent multiple clicks
+  if (isSubmitting.value || isQuizCompleted) {
+    return;
   }
+
+  final selectedIndex =
+      selectedStatementIndex.value;
+
+  // Nothing selected
+  if (selectedIndex == -1) {
+    Get.snackbar(
+      'Select an Answer',
+      'Please select an answer before submitting.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    return;
+  }
+
+  // Safety check
+  if (selectedIndex < 0 ||
+      selectedIndex >= displayedStatements.length) {
+    return;
+  }
+
+  // Lock submission immediately
+  isSubmitting.value = true;
+
+  final selectedStatement =
+      displayedStatements[selectedIndex];
+
+  final bool isCorrect =
+      selectedStatement['isCorrect'] == true;
+
+  // Find correct answer
+  final correctStatement =
+      displayedStatements.firstWhere(
+    (statement) => statement['isCorrect'] == true,
+    orElse: () => <String, dynamic>{},
+  );
+
+  // Save answer for review
+  answerResults.add({
+    'questionNumber':
+        currentQuestionIndex.value + 1,
+    'selectedAnswer':
+        selectedStatement['text']?.toString() ?? '',
+    'correctAnswer':
+        correctStatement['text']?.toString() ?? '',
+    'isCorrect': isCorrect,
+  });
+
+  // Update score
+  if (isCorrect) {
+    score.value++;
+  }
+
+  // Next question
+  if (currentQuestionIndex.value <
+      questions.length - 1) {
+
+    currentQuestionIndex.value++;
+
+    selectedStatementIndex.value = -1;
+
+    prepareCurrentStatements();
+
+    // Allow next submission
+    isSubmitting.value = false;
+
+    return;
+  }
+
+  // Quiz completed - permanently prevent resubmission
+  isQuizCompleted = true;
+
+  // Save attempt only once
+  // await saveAttempt();
+
+  // try {
+  //   final result =
+  //       await StreakService.recordPrelimsActivity();
+
+  //   final alreadyCounted =
+  //       result['alreadyCounted'] == true;
+
+  //   if (!alreadyCounted &&
+  //       Get.isRegistered<HomeController>()) {
+  //     Get.find<HomeController>().loadStreak();
+  //   }
+  // } catch (e) {
+  //   debugPrint('Streak update failed: $e');
+  // }
+
+
+final attemptSaved = await saveAttempt();
+
+// Update daily activity and streak only if attempt was saved.
+if (attemptSaved) {
+  try {
+    if (Get.isRegistered<HomeController>()) {
+      final homeController = Get.find<HomeController>();
+
+      await homeController.recordDailyAttempt();
+    } else {
+      debugPrint('HomeController is not registered.');
+    }
+  } catch (e) {
+    debugPrint('Streak update failed: $e');
+  }
+}
+
+
+  // Show final score only once
+  showFinalScore();
+}
+
 
   // ============================================================
   // GET NEXT ATTEMPT NUMBER
@@ -1321,12 +1456,12 @@ final RxInt reviewFilter = 0.obs;
   // SAVE ATTEMPT
   // ============================================================
 
-  Future<void> saveAttempt() async {
+  Future<bool> saveAttempt() async {
     final user =
         FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return;
+      return false;
     }
 
     try {
@@ -1425,7 +1560,10 @@ final RxInt reviewFilter = 0.obs;
 
         'completedAt':
             FieldValue.serverTimestamp(),
+
       });
+
+        return true; // Indicate that the attempt was saved successfully
     } catch (e) {
       // Don't prevent user from seeing final score
       // if saving fails.
@@ -1433,6 +1571,7 @@ final RxInt reviewFilter = 0.obs;
       debugPrint(
         'Failed to save attempt: $e',
       );
+      return false; // Indicate that the attempt was not saved  
     }
   }
 

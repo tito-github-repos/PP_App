@@ -310,32 +310,68 @@ class _QuestionCard extends StatelessWidget {
             if (meta.isNotEmpty) ...[
   const SizedBox(height: 14),
 
-  RichText(
-    text: TextSpan(
-      children: [
-        for (int i = 0; i < meta.length; i++) ...[
-          TextSpan(
-            text: meta[i],
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
-            ),
-          ),
+  // RichText(
+  //   text: TextSpan(
+  //     children: [
+  //       for (int i = 0; i < meta.length; i++) ...[
+  //         TextSpan(
+  //           text: meta[i],
+  //           style: const TextStyle(
+  //             fontSize: 13,
+  //             fontWeight: FontWeight.w700,
+  //             color: AppColors.primary,
+  //           ),
+  //         ),
 
-          if (i < meta.length - 1)
-            const TextSpan(
-              text: '  •  ',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.muted,
-              ),
-            ),
-        ],
+  //         if (i < meta.length - 1)
+  //           const TextSpan(
+  //             text: '  •  ',
+  //             style: TextStyle(
+  //               fontSize: 13,
+  //               fontWeight: FontWeight.w600,
+  //               color: AppColors.muted,
+  //             ),
+  //           ),
+  //       ],
+  //     ],
+  //   ),
+  // ),
+
+  RichText(
+  text: TextSpan(
+    children: [
+      for (int i = 0; i < meta.length; i++) ...[
+        TextSpan(
+          text: meta[i],
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primary,
+          ),
+        ),
+
+        const TextSpan(
+          text: '  •  ',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.muted,
+          ),
+        ),
       ],
-    ),
+
+      // Answer
+      const TextSpan(
+        text: 'Answer',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          color: AppColors.primary,
+        ),
+      ),
+    ],
   ),
+),
 ],
           ],
         ),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+
 class TopicsController extends GetxController {
   final FirebaseFirestore _firestore =
       FirebaseFirestore.instance;

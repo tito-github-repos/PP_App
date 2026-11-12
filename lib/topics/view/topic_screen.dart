@@ -78,6 +78,20 @@ class TopicsScreen extends GetView<TopicsController> {
               ...controller.topics.map((topic) {
                 final topicName = topic.data()['name']?.toString() ?? 'Topic';
 
+
+// Build the same quizKey used by StatementController
+final quizKeyParts = <String>[
+  controller.subjectId,
+];
+
+if (controller.sectionId != null &&
+    controller.sectionId!.isNotEmpty) {
+  quizKeyParts.add(controller.sectionId!);
+}
+
+quizKeyParts.add(topic.id);
+
+final quizKey = quizKeyParts.join('_');
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Material(
@@ -120,7 +134,40 @@ class TopicsScreen extends GetView<TopicsController> {
                                 style: const TextStyle(color: AppColors.ink, fontSize: 16.5, fontWeight: FontWeight.w600),
                               ),
                             ),
-                            const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.muted, size: 16),
+                            // const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.muted, size: 16),
+
+Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    IconButton(
+      onPressed: () {
+        Get.toNamed(
+          AppRoutes.attemptHistory,
+          arguments: {
+            'quizKey': quizKey,
+            'topicName': topicName,
+          },
+        );
+      },
+      tooltip: 'Attempt History',
+      icon: const Icon(
+        Icons.history_rounded,
+        color: AppColors.primary,
+        size: 23,
+      ),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(
+        minWidth: 40,
+        minHeight: 40,
+      ),
+    ),
+    const Icon(
+      Icons.arrow_forward_ios_rounded,
+      color: AppColors.muted,
+      size: 15,
+    ),
+  ],
+),
                           ],
                         ),
                       ),

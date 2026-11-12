@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pp_app/auth/controller/auth_controller.dart';
+import 'package:pp_app/auth/view/terms_condition_screen.dart';
+import 'package:pp_app/home/view/privacy_policy_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 class LoginScreen extends GetView<AuthController> {
   const LoginScreen({super.key});
@@ -28,15 +30,12 @@ class LoginScreen extends GetView<AuthController> {
                   // LOGO
                   // =========================================================
 
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 30),
-                  ),
+                Image.asset(
+  'assets/images/logo.png',
+  width: 100,
+  height: 100,
+  fit: BoxFit.contain,
+),
 
                   const SizedBox(height: 18),
 
@@ -48,8 +47,7 @@ class LoginScreen extends GetView<AuthController> {
                     text: TextSpan(
                       style: textTheme.displayLarge,
                       children: [
-                        TextSpan(text: 'P', style: TextStyle(color: AppColors.ink)),
-                        TextSpan(text: 'P', style: TextStyle(color: AppColors.primary)),
+                        TextSpan(text: 'For-Facts', style: TextStyle(color: AppColors.primary)),
                       ],
                     ),
                   ),
@@ -60,7 +58,7 @@ class LoginScreen extends GetView<AuthController> {
                   // EYEBROW BADGE
                   // =========================================================
 
-                  Container(
+                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                     decoration: BoxDecoration(
                       color: AppColors.primarySoft,
@@ -69,19 +67,13 @@ class LoginScreen extends GetView<AuthController> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                        ),
                         const SizedBox(width: 8),
                         Text(
-                          'Learn • Practice • Improve',
+                          'Eases GS Prlims',
                           style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.primaryDark),
                         ),
                       ],
-                    ),
-                  ),
+                    ),),
 
                   const SizedBox(height: 12),
 
@@ -111,28 +103,9 @@ class LoginScreen extends GetView<AuthController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Welcome back! 👋', style: textTheme.headlineMedium),
-
-                        const SizedBox(height: 7),
 
                         Text('Sign in to continue your learning journey.', style: textTheme.bodyMedium),
-
-                        const SizedBox(height: 22),
-
-                        // ===================================================
-                        // DIVIDER
-                        // ===================================================
-
-                        Row(
-                          children: [
-                            const Expanded(child: Divider()),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
-                              child: Text('or continue with', style: TextStyle(fontSize: 12, color: AppColors.muted)),
-                            ),
-                            const Expanded(child: Divider()),
-                          ],
-                        ),
+                  
 
                         const SizedBox(height: 20),
 
@@ -194,19 +167,64 @@ class LoginScreen extends GetView<AuthController> {
 
                   SizedBox(height: isSmallScreen ? 20 : 26),
 
-                  Text(
-                    'By continuing, you agree to our',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11.5, color: AppColors.muted),
-                  ),
+                 
+                 Text(
+  'By continuing, you agree to our',
+  textAlign: TextAlign.center,
+  style: TextStyle(
+    fontSize: 11.5,
+    color: AppColors.muted,
+  ),
+),
 
-                  const SizedBox(height: 5),
+const SizedBox(height: 7),
 
-                  Text(
-                    'Terms of Service  •  Privacy Policy',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.ink),
-                  ),
+Wrap(
+  alignment: WrapAlignment.center,
+  crossAxisAlignment: WrapCrossAlignment.center,
+  children: [
+    InkWell(
+      onTap: () {
+        Get.to(() => const TermsAndConditionsScreen());
+      },
+      child: Text(
+        'Terms & Conditions',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: AppColors.primary,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    ),
+
+    const SizedBox(width: 8),
+
+    Text(
+      '•',
+      style: TextStyle(color: AppColors.muted),
+    ),
+
+    const SizedBox(width: 8),
+
+    InkWell(
+      onTap: () {
+        Get.to(() => const PrivacyPolicyScreen());
+      },
+      child: Text(
+        'Privacy Policy',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: AppColors.primary,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 16),
 
                   const SizedBox(height: 16),
                 ],

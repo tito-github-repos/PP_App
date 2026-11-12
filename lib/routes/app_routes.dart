@@ -12,4 +12,9 @@ static const String mainSubjects = '/main-subjects';
 static const String mainTopics = '/main-topics';
 static const String mainSubtopics = '/main-subtopics';
 static const String mainQuestions = '/main-questions';
+
+static const attemptHistory = '/attempt-history';
+static const attemptReview =
+    '/attempt-review';
+    static const profile = '/profile';
 }

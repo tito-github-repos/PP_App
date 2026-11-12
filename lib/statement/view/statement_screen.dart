@@ -33,6 +33,31 @@ class StatementScreen
             fontWeight: FontWeight.w800,
           ),
         ),
+        
+
+//   actions: [
+//     Padding(
+//       padding: const EdgeInsets.only(right: 8),
+//       child: IconButton(
+//         onPressed: () {
+//           Get.toNamed(
+//   AppRoutes.attemptHistory,
+//   arguments: {
+//     'quizKey': controller.quizKey,
+//     'topicName': controller.topicName,
+//   },
+// );
+//         },
+//         tooltip: 'Attempt History',
+//         icon: const Icon(
+//           Icons.history_rounded,
+//           color: AppColors.primary,
+//           size: 25,
+//         ),
+//       ),
+//     ),
+//   ],
+
       ),
 
       // =========================================================================
@@ -110,6 +135,7 @@ class StatementScreen
               crossAxisAlignment:
                   CrossAxisAlignment.start,
               children: [
+
 
                 // ===============================================================
                 // Question counter
@@ -220,9 +246,10 @@ class StatementScreen
                   height: 56,
 
                   child: ElevatedButton(
-                    onPressed: hasSelection
-                        ? controller.submitAnswer
-                        : null,
+                   onPressed: hasSelection &&
+        !controller.isSubmitting.value
+    ? controller.submitAnswer
+    : null,
 
                     style:
                         ElevatedButton.styleFrom(

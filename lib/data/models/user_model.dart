@@ -4,12 +4,14 @@ class UserModel {
   final String uid;
   final String name;
   final String email;
+  final String role;
   final Timestamp createdAt;
 
   UserModel({
     required this.uid,
     required this.name,
     required this.email,
+    this.role = 'student',
     required this.createdAt,
   });
 
@@ -18,6 +20,7 @@ class UserModel {
       'uid': uid,
       'name': name,
       'email': email,
+      'role': role,
       'createdAt': createdAt,
     };
   }
@@ -29,6 +32,7 @@ class UserModel {
       uid: map['uid'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
+      role: map['role'] ?? 'student',
       createdAt:
           map['createdAt'] ?? Timestamp.now(),
     );

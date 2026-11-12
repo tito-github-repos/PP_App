@@ -659,8 +659,12 @@ class HomeScreen extends GetView<HomeController> {
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.primary,
-          onRefresh: controller.loadSubjects,
-          child: CustomScrollView(
+onRefresh: () async {
+  await Future.wait([
+    controller.loadSubjects(),
+    controller.loadStreak(),
+  ]);
+},          child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               // ======================================================
@@ -673,22 +677,74 @@ class HomeScreen extends GetView<HomeController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildHeader(authController),
+                      _buildHeader(),
                       const SizedBox(height: 20),
-                      const PlanDetailsCard(
-                        planLabel: 'Prelims Practice',
-                        summary: 'Free for Mains students · ₹1,111/mo or ₹111/day for others',
-                        accent: AppColors.primary,
-                        accentSoft: AppColors.primarySoft,
-                        accentDark: AppColors.primaryDark,
-                        features: [
-                          '~10,000 facts for every subject, added incrementally',
-                          'New facts added every week',
-                          'Play daily — true or false, like a quick game',
-                          '100 mock tests available from 3 Feb 2027',
-                        ],
-                      ),
-                      const SizedBox(height: 28),
+                      const 
+//  PlanDetailsCard(
+//   planLabel: 'PYQs (2011–2026)',
+//   summary: 'Learn Happily, Learn Easily and Learn Daily.',
+//   accent: AppColors.primary,
+//   accentSoft: AppColors.primarySoft,
+//   accentDark: AppColors.primaryDark,
+//   features: [
+//     'PYQs from 2011 to 2026 are converted into facts vs non-facts.',
+//     'Statements tested as True or False.',
+//     'While solving, apply principles of learning.',
+//     'Learn Happily, Learn Easily and Learn Daily.',
+//     'Start Solving.',
+//   ],
+// ),
+
+PlanDetailsCard(
+  planLabel: 'PYQs (2011–2026)',
+  summary: 'Learn Happily, Learn Easily and Learn Daily.',
+  accent: AppColors.primary,
+  accentSoft: AppColors.primarySoft,
+  accentDark: AppColors.primaryDark,
+
+  // NEW INTRO CONTENT
+  introText:
+      'Mobile app addresses syllabus coverage, by providing facts in an easy format, incrementally.',
+
+  introPoints: [
+    'Facts per subject added incrementally',
+    'New facts added every week',
+    'Revise more, in the shortest possible time',
+  ],
+
+  highlightedIntroPoint:
+      'Revise more, in the shortest possible time',
+
+  // EXISTING FEATURES
+  features: [
+    'PYQs from 2011 to 2026 are converted into facts vs non-facts.',
+    'Statements tested as True or False.',
+    'While solving, apply principles of learning.',
+    'Learn Happily, Learn Easily and Learn Daily.',
+    'Start Solving.',
+  ],
+),
+
+                      // PlanDetailsCard(
+                      //   planLabel: 'Prelims Practice',
+                      //   summary: 'Free for Mains students · ₹1,111/mo or ₹111/day for others',
+                      //   accent: AppColors.primary,
+                      //   accentSoft: AppColors.primarySoft,
+                      //   accentDark: AppColors.primaryDark,
+                      //   features: [
+                      //     '~10,000 facts for every subject, added incrementally',
+                      //     'New facts added every week',
+                      //     'Play daily — true or false, like a quick game',
+                      //     '100 mock tests available from 3 Feb 2027',
+                      //   ],
+                      // ),
+
+                      const SizedBox(height: 18),
+
+                      //  StreakCard(controller: controller),
+                      _buildStreakCard(),
+                                            const SizedBox(height: 28),
+
                       _buildSectionHeader(),
                       const SizedBox(height: 16),
                     ],
@@ -747,86 +803,574 @@ class HomeScreen extends GetView<HomeController> {
   // HEADER — app mark, wordmark, dashboard + logout
   // ================================================================
 
-  Widget _buildHeader(AuthController authController) {
-    return Row(
-      children: [
-        Container(
-          height: 50,
-          width: 50,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(color: AppColors.primary.withOpacity(.20), blurRadius: 14, offset: const Offset(0, 6)),
-            ],
-          ),
-          child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 26),
+Widget _buildHeader() {
+  return Row(
+    children: [
+      Container(
+        height: 50,
+        width: 50,
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withOpacity(.20),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('PP', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800, color: AppColors.ink, letterSpacing: -.5)),
-              SizedBox(height: 3),
-              Text('Learn • Practice • Improve', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.muted)),
-            ],
-          ),
+        child: const Icon(
+          Icons.menu_book_rounded,
+          color: Colors.white,
+          size: 26,
         ),
+      ),
 
-        // -----------------------------------------------------------
-        // DASHBOARD BUTTON
-        // -----------------------------------------------------------
+      const SizedBox(width: 12),
 
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => Get.offAllNamed(AppRoutes.dashboard),
-            borderRadius: BorderRadius.circular(15),
-            child: Container(
-              height: 46,
-              width: 46,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: AppColors.surfaceBorder),
+      const Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'For-Facts',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.w800,
+                color: AppColors.ink,
+                letterSpacing: -.5,
               ),
-              child: const Icon(Icons.dashboard_rounded, size: 21, color: AppColors.muted),
+            ),
+            SizedBox(height: 3),
+            Text(
+              'Eases GS Prelims',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.muted,
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // DASHBOARD BUTTON
+      Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Get.offAllNamed(AppRoutes.dashboard),
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            height: 46,
+            width: 46,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: AppColors.surfaceBorder,
+              ),
+            ),
+            child: const Icon(
+              Icons.dashboard_rounded,
+              size: 21,
+              color: AppColors.muted,
             ),
           ),
         ),
+      ),
 
-        const SizedBox(width: 8),
+      const SizedBox(width: 8),
 
-        // -----------------------------------------------------------
-        // LOGOUT BUTTON
-        // -----------------------------------------------------------
-
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _confirmLogout(authController),
-            borderRadius: BorderRadius.circular(15),
-            child: Container(
-              height: 46,
-              width: 46,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: AppColors.surfaceBorder),
+      // PROFILE BUTTON
+      Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Get.toNamed(AppRoutes.profile),
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            height: 46,
+            width: 46,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: AppColors.surfaceBorder,
               ),
-              child: const Icon(Icons.logout_rounded, size: 21, color: AppColors.muted),
+            ),
+            child: const Icon(
+              Icons.person_outline_rounded,
+              size: 23,
+              color: AppColors.muted,
             ),
           ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 
   // ================================================================
   // SECTION HEADER
   // ================================================================
+// Widget _buildStreakCard() {
+//   return Obx(() {
+//     final streak = controller.currentStreak.value;
 
+//     // Unlock based on streak count
+//     final silverUnlocked = streak >= 30;
+//     final goldUnlocked = streak >= 60;
+
+//     final progress = (streak / 60).clamp(0.0, 1.0);
+
+//     String title;
+//     String subtitle;
+
+//     if (goldUnlocked) {
+//       title = '60 Day Streak';
+//       subtitle = 'Gold Badge unlocked!';
+//     } else if (silverUnlocked) {
+//       title = '$streak Day Streak';
+//       subtitle = '${60 - streak} more days to Gold';
+//     } else {
+//       title = '$streak Day Streak';
+//       subtitle = '${30 - streak} more days to Silver';
+//     }
+
+//     return Material(
+//       color: AppColors.surface,
+//       borderRadius: BorderRadius.circular(22),
+//       clipBehavior: Clip.antiAlias,
+//       child: Container(
+//         width: double.infinity,
+//         decoration: BoxDecoration(
+//           borderRadius: BorderRadius.circular(22),
+//           border: Border.all(
+//             color: AppColors.surfaceBorder,
+//           ),
+//         ),
+//         child: Theme(
+//           data: Theme.of(Get.context!).copyWith(
+//             dividerColor: Colors.transparent,
+//           ),
+//           child: ExpansionTile(
+//             tilePadding: const EdgeInsets.fromLTRB(
+//               18,
+//               10,
+//               14,
+//               10,
+//             ),
+//             childrenPadding: const EdgeInsets.fromLTRB(
+//               18,
+//               0,
+//               18,
+//               18,
+//             ),
+
+//             leading: Container(
+//               width: 52,
+//               height: 52,
+//               decoration: BoxDecoration(
+//                 color: AppColors.primarySoft,
+//                 borderRadius: BorderRadius.circular(16),
+//               ),
+//               child: Icon(
+//                 goldUnlocked
+//                     ? Icons.workspace_premium_rounded
+//                     : Icons.local_fire_department_rounded,
+//                 color: AppColors.primary,
+//                 size: 28,
+//               ),
+//             ),
+
+//             title: Text(
+//               title,
+//               style: const TextStyle(
+//                 fontSize: 18,
+//                 fontWeight: FontWeight.w800,
+//                 color: AppColors.ink,
+//               ),
+//             ),
+
+//             subtitle: Padding(
+//               padding: const EdgeInsets.only(top: 4),
+//               child: Text(
+//                 subtitle,
+//                 style: const TextStyle(
+//                   fontSize: 12.5,
+//                   color: AppColors.muted,
+//                 ),
+//               ),
+//             ),
+
+//             children: [
+//               ClipRRect(
+//                 borderRadius: BorderRadius.circular(10),
+//                 child: LinearProgressIndicator(
+//                   value: progress,
+//                   minHeight: 8,
+//                   backgroundColor: AppColors.primarySoft,
+//                   color: AppColors.primary,
+//                 ),
+//               ),
+
+//               const SizedBox(height: 8),
+
+//               Row(
+//                 mainAxisAlignment:
+//                     MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     '$streak / 60 days',
+//                     style: const TextStyle(
+//                       fontSize: 11.5,
+//                       fontWeight: FontWeight.w700,
+//                       color: AppColors.muted,
+//                     ),
+//                   ),
+
+//                   Text(
+//                     goldUnlocked
+//                         ? 'Gold unlocked'
+//                         : '${60 - streak} days to Gold',
+//                     style: const TextStyle(
+//                       fontSize: 11.5,
+//                       fontWeight: FontWeight.w700,
+//                       color: AppColors.primary,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+
+//               const SizedBox(height: 16),
+
+//               _buildRewardRow(
+//                 icon: Icons.workspace_premium_rounded,
+//                 title: 'Silver • 30 Days',
+//                 reward:
+//                     'Free Prelims mock practice (₹1,111 value)',
+//                 unlocked: silverUnlocked,
+//               ),
+
+//               const SizedBox(height: 10),
+
+//               _buildRewardRow(
+//                 icon: Icons.workspace_premium_rounded,
+//                 title: 'Gold • 60 Days',
+//                 reward:
+//                     '1 hour free Prelims consultation',
+//                 unlocked: goldUnlocked,
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   });
+// }
+
+
+Widget _buildStreakCard() {
+  return Obx(() {
+    final streak = controller.currentStreak.value;
+
+    // All three rewards unlock after 7 consecutive days.
+    final allRewardsUnlocked =
+        controller.silverBadge.value || streak >= 7;
+
+    final progress =
+        (streak.clamp(0, 7) / 7).toDouble();
+
+    final remainingDays = (7 - streak).clamp(0, 7);
+
+    final subtitle = allRewardsUnlocked
+        ? 'All 3 Silver Streak rewards unlocked!'
+        : '$remainingDays more ${remainingDays == 1 ? 'day' : 'days'} to unlock all 3 rewards';
+
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(22),
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: AppColors.surfaceBorder,
+          ),
+        ),
+        child: Theme(
+          data: Theme.of(Get.context!).copyWith(
+            dividerColor: Colors.transparent,
+          ),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.fromLTRB(
+              18, 10, 14, 10,
+            ),
+            childrenPadding: const EdgeInsets.fromLTRB(
+              18, 0, 18, 18,
+            ),
+            leading: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.primarySoft,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.local_fire_department_rounded,
+                color: AppColors.primary,
+                size: 28,
+              ),
+            ),
+            title: Text(
+              '$streak Day Streak',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppColors.ink,
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  color: AppColors.muted,
+                ),
+              ),
+            ),
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 8,
+                  backgroundColor: AppColors.primarySoft,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${streak.clamp(0, 7)} / 7 days',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                  Text(
+                    allRewardsUnlocked
+                        ? 'All rewards unlocked'
+                        : '$remainingDays days to go',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              _buildRewardRow(
+                icon: Icons.school_rounded,
+                title: 'CSAT Online Classes',
+                reward: 'Free CSAT Online Classes',
+                unlocked: allRewardsUnlocked,
+              ),
+
+              const SizedBox(height: 10),
+
+              _buildRewardRow(
+                icon: Icons.people_alt_rounded,
+                title: 'Prelims One-to-One Consulting',
+                reward: 'Free Prelims One-to-One Consulting',
+                unlocked: allRewardsUnlocked,
+              ),
+
+              const SizedBox(height: 10),
+
+              _buildRewardRow(
+                icon: Icons.workspace_premium_rounded,
+                title: 'Mains One-to-One Consulting',
+                reward: 'Free Mains One-to-One Consulting',
+                unlocked: allRewardsUnlocked,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  });
+}
+// Widget _buildRewardRow({
+//   required IconData icon,
+//   required String title,
+//   required String reward,
+//   required bool unlocked,
+// }) {
+//   return Container(
+//     padding: const EdgeInsets.all(12),
+//     decoration: BoxDecoration(
+//       color: unlocked
+//           ? AppColors.primarySoft
+//           : AppColors.background,
+//       borderRadius: BorderRadius.circular(14),
+//       border: Border.all(
+//         color: AppColors.surfaceBorder,
+//       ),
+//     ),
+//     child: Row(
+//       children: [
+//         Icon(
+//           icon,
+//           size: 23,
+//           color: unlocked
+//               ? AppColors.primary
+//               : AppColors.muted,
+//         ),
+
+//         const SizedBox(width: 12),
+
+//         Expanded(
+//           child: Column(
+//             crossAxisAlignment:
+//                 CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 title,
+//                 style: TextStyle(
+//                   fontSize: 13.5,
+//                   fontWeight: FontWeight.w800,
+//                   color: unlocked
+//                       ? AppColors.primary
+//                       : AppColors.ink,
+//                 ),
+//               ),
+
+//               const SizedBox(height: 3),
+
+//               Text(
+//                 reward,
+//                 style: const TextStyle(
+//                   fontSize: 11.5,
+//                   height: 1.3,
+//                   color: AppColors.muted,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+
+//         if (unlocked)
+//           const Icon(
+//             Icons.check_circle_rounded,
+//             size: 21,
+//             color: AppColors.primary,
+//           )
+//         else
+//           const Icon(
+//             Icons.lock_outline_rounded,
+//             size: 19,
+//             color: AppColors.muted,
+//           ),
+//       ],
+//     ),
+//   );
+// }
+
+Widget _buildRewardRow({
+  required IconData icon,
+  required String title,
+  required String reward,
+  required bool unlocked,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: unlocked
+          ? AppColors.primarySoft
+          : AppColors.background,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(
+        color: AppColors.surfaceBorder,
+      ),
+    ),
+    child: Row(
+      children: [
+        Icon(
+          icon,
+          size: 23,
+          color: unlocked
+              ? AppColors.primary
+              : AppColors.muted,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: unlocked
+                      ? AppColors.primary
+                      : AppColors.ink,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                reward,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  height: 1.3,
+                  color: AppColors.muted,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 9,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'FREE',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Icon(
+          unlocked
+              ? Icons.check_circle_rounded
+              : Icons.lock_outline_rounded,
+          size: 21,
+          color: unlocked
+              ? AppColors.primary
+              : AppColors.muted,
+        ),
+      ],
+    ),
+  );
+}
   Widget _buildSectionHeader() {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
